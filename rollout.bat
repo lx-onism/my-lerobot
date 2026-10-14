@@ -1,0 +1,18 @@
+lerobot-rollout ^
+    --strategy.type=base ^
+    --policy.path=outputs/train/smolvla_so101_bedb/checkpoints/011250/pretrained_model ^
+	--policy.device=cuda ^
+    --robot.type=so101_follower ^
+    --robot.id=LXFA0001 ^
+    --robot.port=COM6 ^
+    --robot.cameras="{"wrist": {"type": "opencv", "index_or_path": 0, "width": 640, "height": 480, "fps": 30}, "front": {"type": "opencv", "index_or_path": 1, "width": 640, "height": 480, "fps": 30}}" ^
+    --task="Grab the cube of E into the white box" ^
+	--inference.type=rtc ^
+	--inference.queue_threshold=30 ^
+	--inference.rtc.execution_horizon=15 ^
+	--inference.rtc.max_guidance_weight=10.0 ^
+	--inference.rtc.action_blend_steps=5 ^
+    --duration=300 ^
+	--fps=20 ^
+    --display_data=false ^
+    --interpolation_multiplier=3

@@ -1,0 +1,11 @@
+lerobot-rollout `
+    --strategy.type=base `
+    --policy.path=outputs/train/smolvla_so101_bedb/checkpoints/011250/pretrained_model `
+    --robot.type=so101_follower `
+    --robot.id=LXFA0001 `
+    --robot.port=COM6 `
+    --robot.cameras='{"wrist": {"type": "opencv", "index_or_path": 0, "width": 640, "height": 480, "fps": 30}, "front": {"type": "opencv", "index_or_path": 1, "width": 640, "height": 480, "fps": 30}}' `
+    --task="catch the cube of B into the white box" `
+    --duration=300 `
+    --display_data=false `
+    --interpolation_multiplier 2

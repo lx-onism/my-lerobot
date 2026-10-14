@@ -1,0 +1,18 @@
+lerobot-record ^
+    --robot.disable_torque_on_disconnect=true ^
+    --robot.type=so101_follower ^
+    --robot.port=COM6 ^
+    --robot.id=LXFA0001 ^
+    --robot.cameras="{'wrist': {'type':'opencv', 'index_or_path':0, 'width':640, 'height':480, 'fps':30}, 'front': {'type':'opencv', 'index_or_path':1, 'width':640, 'height':480, 'fps':30}}" ^
+    --teleop.type=so101_leader ^
+    --teleop.port=COM5 ^
+    --teleop.id=LXLA0001 ^
+    --display_data=true ^
+	--dataset.push_to_hub=false ^
+    --dataset.repo_id=my_dataset/so101_train_B ^
+	--dataset.root=E:\WorkSpace\Learn\VLA\Program\lerobot\hf_cache\lerobot\my_dataset\so101_train_B_20260907_173056 ^
+    --dataset.num_episodes=20 ^
+	--dataset.episode_time_s=20 ^
+	--dataset.reset_time_s=5 ^
+    --dataset.single_task="Grab the cube of E into the white box" ^
+	--resume=true

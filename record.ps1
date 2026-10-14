@@ -1,0 +1,15 @@
+lerobot-record `
+    --robot.disable_torque_on_disconnect=true `
+    --robot.type=so101_follower `
+    --robot.port=COM6 `
+    --robot.id=LXFA0001 `
+    --robot.cameras="{'wrist': {'type':'opencv', 'index_or_path':0, 'width':640, 'height':480, 'fps':30}, 'front': {'type':'opencv', 'index_or_path':1, 'width':640, 'height':480, 'fps':30}}" `
+    --teleop.type=so101_leader `
+    --teleop.port=COM5 `
+    --teleop.id=LXLA0001 `
+    --display_data=true `
+	--dataset.push_to_hub=false `
+    --dataset.repo_id=my_dataset/so101_train `
+    --dataset.num_episodes=10 --dataset.episode_time_s=25 `
+	--dataset.reset_time_s=5 `
+    --dataset.single_task="Grab the cube of "A" into the white box"
