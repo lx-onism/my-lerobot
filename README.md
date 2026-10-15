@@ -1,3 +1,5 @@
+**CSDN博客**：[具身实战——so101机械臂真机部署](https://blog.csdn.net/qq_25676741/article/details/168029612?spm=1011.2415.3001.10575&sharefrom=mp_manage_link)
+
 <p align="center">
   <img alt="LeRobot, Hugging Face Robotics Library" src="./media/readme/lerobot-logo-thumbnail.png" width="100%">
 </p>
