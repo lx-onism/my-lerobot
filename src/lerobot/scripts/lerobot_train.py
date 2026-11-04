@@ -47,7 +47,11 @@ from lerobot.common.train_utils import (
 from lerobot.common.wandb_utils import WandBLogger
 from lerobot.configs import parser
 from lerobot.configs.train import TrainPipelineConfig
-from lerobot.datasets import EpisodeAwareSampler, compute_sampler_state
+from lerobot.datasets import (
+    EpisodeAwareSampler,
+    TaskBalancedEpisodeAwareSampler,
+    compute_sampler_state,
+)
 from lerobot.datasets.factory import make_train_eval_datasets
 from lerobot.envs import close_envs, make_env, make_env_pre_post_processors
 from lerobot.optim.factory import make_optimizer_and_scheduler
@@ -407,15 +411,32 @@ def train(cfg: TrainPipelineConfig, accelerator: "Accelerator | None" = None):
         # same permutation. accelerate then shards it disjointly across ranks via BatchSamplerShard
         # without needing a `generator` attribute to synchronize an RNG, and resume is sample-exact.
         shuffle = False
-        sampler = EpisodeAwareSampler(
-            dataset.meta.episodes["dataset_from_index"],
-            dataset.meta.episodes["dataset_to_index"],
-            episode_indices_to_use=dataset.episodes,
-            drop_n_last_frames=getattr(active_cfg, "drop_n_last_frames", 0),
-            shuffle=True,
-            seed=cfg.seed if cfg.seed is not None else 0,
-            absolute_to_relative_idx=dataset.absolute_to_relative_idx,
-        )
+        if cfg.dataset.balanced_sampling:
+            sampler = TaskBalancedEpisodeAwareSampler(
+                dataset.meta.episodes["dataset_from_index"],
+                dataset.meta.episodes["dataset_to_index"],
+                episode_tasks=dataset.meta.episodes["tasks"],
+                episode_indices_to_use=dataset.episodes,
+                drop_n_first_frames=getattr(active_cfg, "drop_n_first_frames", 0),
+                drop_n_last_frames=getattr(active_cfg, "drop_n_last_frames", 0),
+                seed=cfg.seed if cfg.seed is not None else 0,
+                absolute_to_relative_idx=dataset.absolute_to_relative_idx,
+            )
+            if is_main_process:
+                logging.info(
+                    "Task-balanced sampling enabled: tasks are oversampled to "
+                    f"{sampler.target_frames_per_task} frames/task ({len(sampler.task_names)} tasks)."
+                )
+        else:
+            sampler = EpisodeAwareSampler(
+                dataset.meta.episodes["dataset_from_index"],
+                dataset.meta.episodes["dataset_to_index"],
+                episode_indices_to_use=dataset.episodes,
+                drop_n_last_frames=getattr(active_cfg, "drop_n_last_frames", 0),
+                shuffle=True,
+                seed=cfg.seed if cfg.seed is not None else 0,
+                absolute_to_relative_idx=dataset.absolute_to_relative_idx,
+            )
         if cfg.resume and step > 0:
             # The resume offset depends on the (num_processes, batch_size) that produced `step`, so
             # use the values recorded in the checkpoint (falling back to the current ones for older

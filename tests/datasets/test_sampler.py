@@ -25,7 +25,7 @@ from datasets import Dataset  # noqa: E402
 from lerobot.datasets.io_utils import (
     hf_transform_to_torch,
 )
-from lerobot.datasets.sampler import EpisodeAwareSampler
+from lerobot.datasets.sampler import EpisodeAwareSampler, TaskBalancedEpisodeAwareSampler
 
 
 def calculate_episode_data_index(hf_dataset: Dataset) -> dict[str, torch.Tensor]:
@@ -150,6 +150,36 @@ def test_partial_episode_drop_warns(caplog):
     # Episode 0 is skipped (1 frame, drop 1), Episode 1 keeps frames 2-5
     assert sampler.indices == [2, 3, 4, 5]
     assert "Episode 0" in caplog.text
+
+
+def test_task_balanced_sampler_oversamples_smaller_tasks():
+    sampler = TaskBalancedEpisodeAwareSampler(
+        [0, 2, 4],
+        [2, 4, 7],
+        episode_tasks=[["A"], ["B"], ["B"]],
+        seed=0,
+    )
+
+    assert sampler._target_frames_per_task == 3
+    assert len(sampler) == 6
+
+    positions = list(sampler)
+    assert all(position < 2 for position in positions[::2])
+    assert all(position >= 2 for position in positions[1::2])
+
+
+def test_task_balanced_sampler_interleaves_tasks():
+    sampler = TaskBalancedEpisodeAwareSampler(
+        [0, 2, 3, 5],
+        [2, 3, 5, 7],
+        episode_tasks=[["A"], ["A"], ["B"], ["B"]],
+        seed=42,
+    )
+
+    positions = list(sampler)
+    assert len(sampler) == 6
+    assert all(position < 3 for position in positions[::2])
+    assert all(position >= 3 for position in positions[1::2])
 
 
 # --- seeded (seed, epoch) shuffling, resume, and state ---

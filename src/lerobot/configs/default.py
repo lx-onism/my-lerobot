@@ -41,6 +41,8 @@ class DatasetConfig:
     streaming: bool = False
     # Fraction of episodes held out per task for offline evaluation (0.0 = disabled).
     eval_split: float = 0.0
+    # Oversample smaller tasks so each task contributes the same number of frames per epoch.
+    balanced_sampling: bool = False
 
     def __post_init__(self) -> None:
         if not (0.0 <= self.eval_split < 1.0):
